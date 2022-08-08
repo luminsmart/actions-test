@@ -1,4 +1,4 @@
-name: Deploy Releases
+name: Deploy Release
 on: 
   release:
     types:
@@ -9,31 +9,42 @@ jobs:
   GetVersion:
     runs-on: ubuntu-latest
     outputs:
-      major: ${{ steps.major.outputs.number }}
       minor: ${{ steps.minor.outputs.number }}
       patch: ${{ steps.patch.outputs.number }}
     steps:
-      - id: major
-        run: echo "::set-output name=number::$(echo ${VERSION##*v} | cut -d'.' -f1)"
       - id: minor
         run: echo "::set-output name=number::$(echo ${VERSION##*v} | cut -d'.' -f2)"
       - id: patch
         run: echo "::set-output name=number::$(echo ${VERSION##*v} | cut -d'.' -f3)"
-  Deploy:
+  AllReleases:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by creating the ${{ github.ref_type }} ${{ github.ref_name }}."
+      - run: echo "Do things that all releases require..."
+  Major:
     runs-on: ubuntu-latest
     needs: GetVersion
     env:
-      major: ${{ needs.GetVersion.outputs.major }}
       minor: ${{ needs.GetVersion.outputs.minor }}
       patch: ${{ needs.GetVersion.outputs.patch }}
+    if: ${{ env.minor == 0 && env.patch == 0 }}
     steps:
-      - run: echo "🎉 The job was automatically triggered by creating the ${{ github.ref_type }} ${{ github.ref_name }}."
-      - name: Major version
-        if: ${{ env.minor == 0 && env.patch == 0 }}
-        run: echo "Doing the things for MAJOR version change..."
-      - name: Minor version
-        if: ${{ env.minor != 0 && env.patch == 0 }}
-        run: echo "Doing the things for MINOR version change..."
-      - name: Patch version
-        if: ${{ env.patch != 0 }}
-        run: echo "Doing the things for PATCH version change..."
+      - run: echo "Doing the things for MAJOR version change..."
+  Minor:
+    runs-on: ubuntu-latest
+    needs: GetVersion
+    env:
+      minor: ${{ needs.GetVersion.outputs.minor }}
+      patch: ${{ needs.GetVersion.outputs.patch }}
+    if: ${{ env.minor != 0 && env.patch == 0 }}
+    steps:
+      - run: echo "Doing the things for MINOR version change..."
+  Patch:
+    runs-on: ubuntu-latest
+    needs: GetVersion
+    env:
+      patch: ${{ needs.GetVersion.outputs.patch }}
+    if: ${{ env.patch != 0 }}
+    steps:
+      - run: echo "Doing the things for PATCH version change..."
+
