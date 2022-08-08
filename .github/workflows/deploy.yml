@@ -1,0 +1,12 @@
+name: GitHub Actions Demo
+on: 
+  release:
+    types:
+      - "published"
+env:
+  VERSION: ${{ github.ref_name }}
+jobs:
+  All-Versions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by creating the ${{ github.ref_type }} ${{ github.ref_name }} also known as ${{ env.VERSION }}."
