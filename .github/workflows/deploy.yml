@@ -11,7 +11,7 @@ jobs:
     outputs:
       major: ${{ steps.major.outputs.number }}
       minor: ${{ steps.minor.outputs.number }}
-      patch: ${{ steps.path.outputs.number }}
+      patch: ${{ steps.patch.outputs.number }}
     steps:
       - id: major
         run: echo "::set-output name=number::$(echo ${VERSION##*v} | cut -d'.' -f1)"
@@ -28,4 +28,12 @@ jobs:
       patch: ${{ needs.GetVersion.outputs.patch }}
     steps:
       - run: echo "🎉 The job was automatically triggered by creating the ${{ github.ref_type }} ${{ github.ref_name }}."
-      - run: echo "The version is v${{ env.major }}.${{ env.minor }}.${{ env.patch }}"
+      - name: Major version
+        if: ${{ env.minor == 0 && env.patch == 0 }}
+        run: echo "Doing the things for MAJOR version change..."
+      - name: Minor version
+        if: ${{ env.minor != 0 && env.patch == 0 }}
+        run: echo "Doing the things for MINOR version change..."
+      - name: Patch version
+        if: ${{ env.patch != 0 }}
+        run: echo "Doing the things for PATCH version change..."
