@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: Deploy Releases
 on: 
   release:
     types:
@@ -6,7 +6,19 @@ on:
 env:
   VERSION: ${{ github.ref_name }}
 jobs:
+  Set-Vars:
+    runs-on: ubuntu-latest
+    env:
+      TAG_NAME: ${{ github.ref_name }}
+    steps:
+      - name: Set-Major
+        run: echo "major=$(echo ${TAG_NAME##*v} | cut -d'.' -f1)" >> $GITHUB_ENV
+      - name: Set-Minor
+        run: echo "minor=$(echo ${TAG_NAME##*v} | cut -d'.' -f2)" >> $GITHUB_ENV
+      - name: Set-Patch
+        run: echo "patch=$(echo ${TAG_NAME##*v} | cut -d'.' -f3)" >> $GITHUB_ENV
   All-Versions:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was automatically triggered by creating the ${{ github.ref_type }} ${{ github.ref_name }} also known as ${{ env.VERSION }}."
+      - run: echo "🎉 The job was automatically triggered by creating the ${{ github.ref_type }} ${{ github.ref_name }}."
+      - run: echo "The version is v${{ env.major }}.${{ env.minor }}.${{ env.patch }}"
